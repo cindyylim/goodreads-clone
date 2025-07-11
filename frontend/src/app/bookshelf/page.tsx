@@ -45,7 +45,7 @@ export default function Bookshelf() {
     setLoading(true);
     setError('');
     try {
-      const response = await api.get('/users/bookshelf');
+      const response = await api.get(`/users/${getUser()._id}/bookshelf`);
       setBookshelf(response.data);
     } catch (error: any) {
       if (error.response?.status === 401) {

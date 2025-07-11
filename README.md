@@ -8,7 +8,12 @@ A scalable Goodreads-like web application for book discovery, rating, reviewing,
 - Add books to personal bookshelf with status: Want to Read, Currently Reading, Read
 - View and manage your bookshelf
 - Update reading status or remove books from shelf
-- Social features (book clubs, friends) - planned
+- **Community features:**
+  - Create and join book clubs/groups
+  - Start discussions and reply to topics
+  - Search and browse groups by name, description, or tags
+  - View group members and discussions
+- Social features (book clubs, friends) - ✅ **Implemented**
 - Personalized recommendations - planned
 
 ## Tech Stack
@@ -50,6 +55,16 @@ goodreads-clone/
 - `POST   /api/users/bookshelf` — Add a book to shelf
 - `PUT    /api/users/bookshelf/:id` — Update bookshelf item
 - `DELETE /api/users/bookshelf/:id` — Remove book from shelf
+- **Community endpoints:**
+  - `POST   /api/groups` — Create a new group
+  - `GET    /api/groups` — List/search groups
+  - `GET    /api/groups/:id` — Get group details
+  - `POST   /api/groups/:id/join` — Join a group
+  - `POST   /api/groups/:id/leave` — Leave a group
+  - `GET    /api/groups/:id/topics` — Get group discussions
+  - `POST   /api/groups/:id/topics` — Create a new discussion
+  - `GET    /api/topics/:id` — Get discussion details
+  - `POST   /api/topics/:id/reply` — Reply to a discussion
 
 ---
 

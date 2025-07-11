@@ -208,6 +208,26 @@ export default function Books() {
               }}>
                 My Bookshelf
               </Link>
+              <Link href="/community" style={{
+                color: 'white',
+                textDecoration: 'none',
+                padding: '0.5rem 1rem',
+                borderRadius: '0.5rem',
+                background: 'rgba(255, 255, 255, 0.2)',
+                fontSize: '0.9rem'
+              }}>
+                Community
+              </Link>
+              <Link href="/profile" style={{
+                color: 'white',
+                textDecoration: 'none',
+                padding: '0.5rem 1rem',
+                borderRadius: '0.5rem',
+                background: 'rgba(255, 255, 255, 0.2)',
+                fontSize: '0.9rem'
+              }}>
+                Profile
+              </Link>
               <button
                 onClick={handleLogout}
                 style={{
