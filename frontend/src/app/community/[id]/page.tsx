@@ -33,13 +33,13 @@ export default function CommunityPage({ params }: { params: { id: string } }) {
   }, [id, user]);
 
   const handleJoin = async () => {
-    await api.post(`/groups/${params.id}/join`);
+    await api.post(`/groups/${id}/join`);
     setIsMember(true);
     setMembers((prev) => [...prev, user]);
   };
 
   const handleLeave = async () => {
-    await api.post(`/groups/${params.id}/leave`);
+    await api.post(`/groups/${id}/leave`);
     setIsMember(false);
     setMembers((prev) => prev.filter((m: any) => m._id !== user._id));
   };
@@ -50,7 +50,7 @@ export default function CommunityPage({ params }: { params: { id: string } }) {
     
     setCreatingTopic(true);
     try {
-      const response = await api.post(`/groups/${params.id}/topics`, {
+      const response = await api.post(`/groups/${id}/topics`, {
         title: topicTitle,
         content: topicContent
       });
