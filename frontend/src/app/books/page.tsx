@@ -162,7 +162,7 @@ export default function Books() {
         fontFamily: 'system-ui, -apple-system, sans-serif'
       }}>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>��</div>
+          <div style={{ fontSize: '2rem', marginBottom: '1rem' }}></div>
           <p>Loading books...</p>
         </div>
       </div>
@@ -485,7 +485,6 @@ export default function Books() {
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    console.log('Want to Read clicked for book:', book._id);
                                     handleAddToShelf(book._id, 'want-to-read');
                                   }}
                                   style={{
@@ -504,7 +503,6 @@ export default function Books() {
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    console.log('Currently Reading clicked for book:', book._id);
                                     handleAddToShelf(book._id, 'currently-reading');
                                   }}
                                   style={{
@@ -523,7 +521,6 @@ export default function Books() {
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    console.log('Read clicked for book:', book._id);
                                     handleAddToShelf(book._id, 'read');
                                   }}
                                   style={{
