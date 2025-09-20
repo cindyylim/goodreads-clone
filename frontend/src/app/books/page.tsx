@@ -106,7 +106,7 @@ export default function Books() {
     setShowStatusDropdown(null);
 
     try {
-      const response = await api.post('/users/bookshelf', {
+      await api.post('/users/bookshelf', {
         bookId,
         status
       });

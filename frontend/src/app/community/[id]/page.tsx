@@ -65,6 +65,21 @@ export default function CommunityPage({ params }: { params: { id: string } }) {
     }
   };
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const topicsPerPage = 5; // Number of topics per page
+  const totalTopics = topics.length; // Total number of topics
+
+  // Calculate the indexes for the current page
+  const indexOfLastTopic = currentPage * topicsPerPage;
+  const indexOfFirstTopic = indexOfLastTopic - topicsPerPage;
+
+  // Slice the topics based on the current page
+  const currentTopics = topics.slice(indexOfFirstTopic, indexOfLastTopic);
+
+  // Calculate total pages
+  const totalPages = Math.ceil(totalTopics / topicsPerPage);
+
+
   if (!group) return <div>Loading...</div>;
 
   return (
@@ -129,7 +144,7 @@ export default function CommunityPage({ params }: { params: { id: string } }) {
           <div>
             <h2 style={{ fontSize: '1.3rem', marginBottom: 16 }}>Recent Discussions</h2>
             <div>
-              {topics.slice(0, 5).map(topic => (
+              {currentTopics.slice(0, 5).map(topic => (
                 <Link key={topic._id} href={`/community/topic/${topic._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                   <div style={{ borderBottom: '1px solid #eee', padding: '1rem 0', cursor: 'pointer', transition: 'background-color 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8f9fa'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
                     <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#667eea' }}>{topic.title}</div>
@@ -140,6 +155,39 @@ export default function CommunityPage({ params }: { params: { id: string } }) {
                 </Link>
               ))}
             </div>
+            {/* Pagination Controls */}
+          <div style={{ marginTop: 20, display: 'flex', justifyContent: 'center' }}>
+            <button
+              onClick={() => setCurrentPage(currentPage - 1)}
+              disabled={currentPage === 1}
+              style={{
+                padding: '0.5rem 1rem',
+                borderRadius: '0.5rem',
+                border: 'none',
+                background: currentPage === 1 ? '#ccc' : '#667eea',
+                color: 'white',
+                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                fontWeight: 'bold'
+              }}       
+            >
+              Previous
+            </button>
+            <span>{currentPage} of {totalPages}</span>
+            <button
+              onClick={() => setCurrentPage(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              style={{
+                padding: '0.5rem 1rem',
+                borderRadius: '0.5rem',
+                border: 'none',
+                background: currentPage === totalPages ? '#ccc' : '#667eea',
+                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                fontWeight: 'bold'
+              }}
+            >
+              Next
+            </button>
+          </div>
             {isMember && (
               <button 
                 onClick={() => setShowTopicForm(true)}
@@ -181,7 +229,7 @@ export default function CommunityPage({ params }: { params: { id: string } }) {
                 </button>
               )}
             </div>
-            {topics.map(topic => (
+            {currentTopics.map(topic => (
               <Link key={topic._id} href={`/community/topic/${topic._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                 <div style={{ borderBottom: '1px solid #eee', padding: '1rem 0', cursor: 'pointer', transition: 'background-color 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8f9fa'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
                   <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#667eea' }}>{topic.title}</div>
@@ -191,6 +239,39 @@ export default function CommunityPage({ params }: { params: { id: string } }) {
                 </div>
               </Link>
             ))}
+            {/* Pagination Controls */}
+          <div style={{ marginTop: 20, display: 'flex', justifyContent: 'center' }}>
+            <button
+              onClick={() => setCurrentPage(currentPage - 1)}
+              disabled={currentPage === 1}
+              style={{
+                padding: '0.5rem 1rem',
+                borderRadius: '0.5rem',
+                border: 'none',
+                background: currentPage === 1 ? '#ccc' : '#667eea',
+                color: 'white',
+                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                fontWeight: 'bold'
+              }}           
+            >
+              Previous
+            </button>
+            <span>{currentPage} of {totalPages}</span>
+            <button
+              onClick={() => setCurrentPage(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              style={{
+                padding: '0.5rem 1rem',
+                borderRadius: '0.5rem',
+                border: 'none',
+                background: currentPage === totalPages ? '#ccc' : '#667eea',
+                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                fontWeight: 'bold'
+              }}
+            >
+              Next
+            </button>
+          </div>
           </div>
         )}
 
