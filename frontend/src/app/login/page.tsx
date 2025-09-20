@@ -3,8 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import axios from 'axios';
-import { setAuth } from '@/utils/auth';
+import { api, setAuth } from '@/utils/auth';
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -28,7 +27,7 @@ export default function Login() {
     setError('');
 
     try {
-      const response = await axios.post('http://localhost:5000/api/users/login', formData);
+      const response = await api.post('/users/login', formData);
       
       // Store the token and user data using the auth utility
       setAuth(response.data.token, response.data.user);
