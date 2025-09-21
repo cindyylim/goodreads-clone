@@ -1,16 +1,21 @@
-const express = require('express');
-const cors = require('cors');
-const jwt = require('jsonwebtoken');
-const mongoose = require('mongoose');
-require('dotenv').config();
-const connectDB = require('./db');
+import express from 'express';
+import cors from 'cors';
+import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose';
+import dotenv from "dotenv";
+import crypto from "crypto";
+import {serialize} from "cookie"
+
+dotenv.config();
+import { connectDB } from './db.js';
 
 // Import models
-const User = require('./models/User');
-const Book = require('./models/Book');
-const Bookshelf = require('./models/Bookshelf');
-const Group = require('./models/Group');
-const Topic = require('./models/Topic');
+import { User } from './models/User.js';
+import { Book } from "./models/Book.js";
+import { Bookshelf } from './models/Bookshelf.js';
+import { Group } from './models/Group.js';
+import { Topic } from './models/Topic.js';
+import { sendPasswordResetEmail, sendResetSuccessEmail, sendVerificationEmail, sendWelcomeEmail } from './mailtrap/emails.js';
 
 const app = express();
 app.use(cors());
@@ -23,8 +28,14 @@ connectDB();
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 // Generate JWT Token
-const generateToken = (userId) => {
-  return jwt.sign({ userId }, JWT_SECRET, { expiresIn: '7d' });
+const generateToken = (res, userId) => {
+  const token =  jwt.sign({ userId }, JWT_SECRET, { expiresIn: '7d' });
+  res.setHeader('Set-Cookie', serialize('token', token, {
+    httpOnly: true,
+    path: '/',
+    maxAge: 60 * 60 * 24 * 7, // 1 week
+  }));
+  return token;
 };
 
 // Middleware to verify JWT token
@@ -55,6 +66,39 @@ app.get('/api/test', (req, res) => {
   res.json({ message: 'API is working!', timestamp: new Date().toISOString() });
 });
 
+app.post("/api/users/verify-email", async (req, res) => {
+  const { verificationCode } = req.body;
+  try {
+    const user = await User.findOne({
+      verificationToken: verificationCode,
+      verificationTokenExpiresAt: {$gt: Date.now()}
+    })
+    if (!user) {
+      return res.status(400).json({success: false, message: "Invalid or expired verification code"})
+    }
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    user.verificationTokenExpiresAt = undefined;
+    
+    await user.save();
+
+    const token = generateToken(res, user._id);
+
+    await sendWelcomeEmail(user.email, user.name)
+    res.status(200).json({
+      success: true,
+      message: "Email verified successfully",
+      user: {
+        ...user._doc,
+        password: undefined,
+      },
+      token,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server error', error: error.message });
+  }
+})
+
 // User routes
 app.post('/api/users/register', async (req, res) => {
   try {
@@ -65,14 +109,15 @@ app.post('/api/users/register', async (req, res) => {
     if (existingUser) {
       return res.status(400).json({ message: 'User already exists' });
     }
-    
+    const verificationToken = Math.floor(100000 + Math.random() * 900000).toString();
+
     // Create new user
-    const user = new User({ name, email, password });
+    const user = new User({ name, email, password, verificationToken, verificationTokenExpiresAt: Date.now() + 15 * 60 * 1000 });
     await user.save();
     
     // Generate token
-    const token = generateToken(user._id);
-    
+    const token = generateToken(res, user._id);
+    await sendVerificationEmail(user.email, verificationToken)
     // Return user data (without password) and token
     const userResponse = {
       _id: user._id,
@@ -110,8 +155,9 @@ app.post('/api/users/login', async (req, res) => {
     }
     
     // Generate token
-    const token = generateToken(user._id);
-    
+    const token = generateToken(res, user._id);
+    user.lastLogin = new Date();
+    await user.save();
     // Return user data (without password) and token
     const userResponse = {
       _id: user._id,
@@ -131,6 +177,53 @@ app.post('/api/users/login', async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
+
+app.post("/api/users/forgot-password", async (req, res) => {
+  const {email} = req.body;
+  try {
+    const user = await User.findOne({email});
+    if (!user) {
+      return res.status(400).json({message: "User not found"});
+    }
+
+    const resetToken = crypto.randomBytes(20).toString("hex");
+    const resetTokenExpiresAt = Date.now() + 1 * 60 * 60 * 1000;
+    user.resetPasswordToken = resetToken;
+    user.resetTokenExpiresAt = resetTokenExpiresAt;
+    await user.save();
+
+    await sendPasswordResetEmail(user.email, `${process.env.CLIENT_URL}/reset-password/${resetToken}`)
+    res.status(200).json({ message: "Password reset link sent to your email" });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+})
+
+app.post("/api/users/reset-password/:token", async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    const user = await User.findOne({resetPasswordToken: token, resetPasswordExpiresAt: {$gt: Date.now()}})
+    if (!user) {
+      return res.status(400).json({success: false, message: "Invalid or expired reset token"});
+    }
+    user.password = password;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpiresAt = undefined;
+    await user.save();
+    await sendResetSuccessEmail(user.email);
+
+    res.status(200).json({success: true, message: "Password reset successfully"});
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+})
+
+app.post("/api/users/logout", async (req, res) => {
+  res.clearCookie("token");
+  res.status(200).json({success: true, message: "Logged out successfully"});
+})
 
 // Get current user profile
 app.get('/api/users/profile', authenticateToken, async (req, res) => {

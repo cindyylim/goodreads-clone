@@ -33,8 +33,8 @@ export default function Signup() {
       // Store the token and user data using the auth utility
       setAuth(response.data.token, response.data.user);
       
-      // Redirect to books page
-      router.push('/books');
+      // Redirect to verify email page
+      router.push('/verify-email');
     } catch (error: any) {
       setError(error.response?.data?.message || 'Registration failed. Please try again.');
     } finally {

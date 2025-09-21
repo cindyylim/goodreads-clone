@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const bookshelfSchema = new mongoose.Schema({
   user: {
@@ -39,4 +39,4 @@ const bookshelfSchema = new mongoose.Schema({
 // Ensure unique user-book combinations
 bookshelfSchema.index({ user: 1, book: 1 }, { unique: true });
 
-module.exports = mongoose.model('Bookshelf', bookshelfSchema); 
+export const Bookshelf = mongoose.model('Bookshelf', bookshelfSchema); 

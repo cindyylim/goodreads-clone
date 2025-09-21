@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
-const connectDB = async () => {
+export const connectDB = async () => {
   try {
     let uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/goodreads-clone';
     
@@ -18,4 +18,3 @@ const connectDB = async () => {
   }
 };
 
-module.exports = connectDB; 

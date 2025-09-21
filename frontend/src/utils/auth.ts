@@ -62,9 +62,10 @@ export const isAuthenticated = () => {
   return !!getToken();
 };
 
-export const logout = () => {
+export const logout = async () => {
   localStorage.removeItem('token');
   localStorage.removeItem('user');
+  await api.post("/users/logout");
   window.location.href = '/';
 };
 
