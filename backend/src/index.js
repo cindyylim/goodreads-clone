@@ -189,7 +189,7 @@ app.post("/api/users/forgot-password", async (req, res) => {
     const resetToken = crypto.randomBytes(20).toString("hex");
     const resetTokenExpiresAt = Date.now() + 1 * 60 * 60 * 1000;
     user.resetPasswordToken = resetToken;
-    user.resetTokenExpiresAt = resetTokenExpiresAt;
+    user.resetPasswordExpiresAt = resetTokenExpiresAt;
     await user.save();
 
     await sendPasswordResetEmail(user.email, `${process.env.CLIENT_URL}/reset-password/${resetToken}`)
